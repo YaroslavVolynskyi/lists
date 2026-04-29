@@ -72,4 +72,10 @@ class ShoppingListViewModel @Inject constructor(
         _editingItemId.value = null
         _editingText.value = ""
     }
+
+    fun onDeleteItem(itemId: Long) {
+        viewModelScope.launch {
+            repository.delete(itemId)
+        }
+    }
 }

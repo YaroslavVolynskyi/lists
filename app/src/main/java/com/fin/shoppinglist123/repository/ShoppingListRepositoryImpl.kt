@@ -24,4 +24,8 @@ class ShoppingListRepositoryImpl @Inject constructor(
     override suspend fun updateItemName(itemId: Long, newName: String) {
         shoppingDatabaseDao.updateItemName(itemId, newName)
     }
+
+    override suspend fun delete(itemId: Long) {
+        shoppingDatabaseDao.delete(itemId)
+    }
 }
