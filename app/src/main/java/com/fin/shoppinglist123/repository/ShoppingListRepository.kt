@@ -1,0 +1,13 @@
+package com.fin.shoppinglist123.repository
+
+import com.fin.shoppinglist123.data.ShoppingItemEntry
+import kotlinx.coroutines.flow.Flow
+
+interface ShoppingListRepository {
+
+    fun getShoppingList(): Flow<List<ShoppingItemEntry>>
+
+    suspend fun getById(itemId: Long): ShoppingItemEntry?
+
+    suspend fun insert(item: ShoppingItemEntry): Long
+}
