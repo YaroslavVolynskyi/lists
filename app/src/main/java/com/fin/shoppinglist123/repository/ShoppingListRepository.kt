@@ -14,4 +14,6 @@ interface ShoppingListRepository {
     suspend fun updateItemName(itemId: Long, newName: String)
 
     suspend fun delete(itemId: Long)
+
+    suspend fun onCheckedChanged(itemId: Long, isChecked: Boolean)
 }

@@ -28,4 +28,8 @@ class ShoppingListRepositoryImpl @Inject constructor(
     override suspend fun delete(itemId: Long) {
         shoppingDatabaseDao.delete(itemId)
     }
+
+    override suspend fun onCheckedChanged(itemId: Long, isChecked: Boolean) {
+        shoppingDatabaseDao.onCheckedChanged(itemId, isChecked)
+    }
 }

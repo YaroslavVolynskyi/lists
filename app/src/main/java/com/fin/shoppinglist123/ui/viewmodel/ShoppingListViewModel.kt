@@ -86,4 +86,10 @@ class ShoppingListViewModel @Inject constructor(
     fun onToggleExpand(itemid: Long?) {
         _expandedItemId.value = itemid
     }
+
+    fun onCheckedChanged(itemId: Long, isChecked: Boolean) {
+        viewModelScope.launch {
+            repository.onCheckedChanged(itemId, isChecked)
+        }
+    }
 }

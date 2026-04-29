@@ -8,5 +8,6 @@ data class ShoppingItemEntry(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val item: String,
     val description: String? = null,
+    val isChecked: Boolean = false,
     val state: ShoppingItemState = ShoppingItemState.New
 )
