@@ -10,14 +10,14 @@ class ShoppingListRepositoryImpl @Inject constructor(
 ): ShoppingListRepository {
 
     override fun getShoppingList(): Flow<List<ShoppingItemEntry>> {
-        TODO("Not yet implemented")
+        return shoppingDatabaseDao.observeAllItems()
     }
 
     override suspend fun getById(itemId: Long): ShoppingItemEntry? {
-        TODO("Not yet implemented")
+        return shoppingDatabaseDao.getById(itemId)
     }
 
-    override suspend fun insert(item: ShoppingItemEntry): Long {
-        TODO("Not yet implemented")
+    override suspend fun addItem(item: ShoppingItemEntry): Long {
+        return shoppingDatabaseDao.insert(item)
     }
 }

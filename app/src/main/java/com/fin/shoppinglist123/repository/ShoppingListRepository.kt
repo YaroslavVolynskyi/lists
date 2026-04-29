@@ -9,5 +9,5 @@ interface ShoppingListRepository {
 
     suspend fun getById(itemId: Long): ShoppingItemEntry?
 
-    suspend fun insert(item: ShoppingItemEntry): Long
+    suspend fun addItem(item: ShoppingItemEntry): Long
 }
