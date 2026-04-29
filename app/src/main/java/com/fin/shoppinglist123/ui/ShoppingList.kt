@@ -2,7 +2,9 @@ package com.fin.shoppinglist123.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,10 +14,13 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowCircleDown
+import androidx.compose.material.icons.filled.ArrowCircleUp
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +38,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.fromColorLong
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -57,7 +64,8 @@ fun ShoppingListRoute(
         onEditTextChange = viewModel::onEditTextChange,
         onSaveEdit = viewModel::onSaveEdit,
         onCancelEdit = viewModel::onCancelEdit,
-        onDelete = viewModel::onDeleteItem
+        onDelete = viewModel::onDeleteItem,
+        onExpand = viewModel::onToggleExpand
     )
 }
 
@@ -70,7 +78,8 @@ fun ShoppingListScreen(
     onEditTextChange: (String) -> Unit,
     onSaveEdit: () -> Unit,
     onCancelEdit: () -> Unit,
-    onDelete: (itemId: Long) -> Unit
+    onDelete: (itemId: Long) -> Unit,
+    onExpand: (itemId: Long?) -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
@@ -91,6 +100,7 @@ fun ShoppingListScreen(
         ) {
             items(uiState.items, key = { item -> item.id }) { item ->
                 val isEditing = uiState.editingItemId == item.id
+                val isExpanded = uiState.expandedItemId == item.id
                 Card(modifier = Modifier.fillMaxWidth()) {
                     if (isEditing) {
                         val focusRequester = remember { FocusRequester() }
@@ -132,22 +142,50 @@ fun ShoppingListScreen(
                             focusRequester.requestFocus()
                         }
                     } else {
-                        Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onStartEdit(item) }
-                            .padding(4.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    start = 16.dp,
+                                )
                         ) {
-                            Text(
-                                text = item.item,
+                            Row(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .padding(16.dp)
-                            )
-                            IconButton(onClick = {
-                                onDelete.invoke(item.id)
-                            }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Delete")
+                                    .fillMaxWidth()
+                                    .clickable { onStartEdit(item) },
+//                                    .padding(4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = item.item,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                )
+                                IconButton(onClick = {
+                                    onExpand.invoke(
+                                        if (isExpanded) null else item.id
+                                    )
+                                }) {
+                                    Icon(
+                                        imageVector = if (isExpanded) Icons.Default.ArrowCircleUp else Icons.Default.ArrowCircleDown,
+                                        contentDescription = "toggle expand"
+                                    )
+                                }
+                                IconButton(onClick = {
+                                    onDelete.invoke(item.id)
+                                }) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                                }
+                            }
+                            if (isExpanded) {
+                                HorizontalDivider(modifier = Modifier.padding(end = 16.dp))
+                                Text(
+                                    text = "expanded text of item ${item.id}",
+                                    modifier = Modifier.padding(
+                                        top = 8.dp,
+                                        bottom = 16.dp
+                                    )
+                                )
                             }
                         }
                     }
