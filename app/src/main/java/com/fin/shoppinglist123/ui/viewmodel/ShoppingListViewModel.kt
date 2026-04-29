@@ -10,8 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,30 +22,54 @@ class ShoppingListViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
 ): ViewModel() {
 
-//    private val _uiState = MutableStateFlow(ShoppingListState())
-//    val uiState: StateFlow<ShoppingListState> = _uiState
-//
-//    init {
-//        viewModelScope.launch {
-//            repository.getShoppingList().collect { items ->
-//                _uiState.value = ShoppingListState(items = items)
-//            }
-//        }
-//    }
+    private val _editingItemId = MutableStateFlow<Long?>(null)
+    private val _editingText = MutableStateFlow("")
 
-    val uiState: StateFlow<ShoppingListState> = repository.getShoppingList()
-        .map { itemsList -> ShoppingListState(itemsList) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ShoppingListState())
+    val uiState: StateFlow<ShoppingListState> = combine(
+        repository.getShoppingList(),
+        _editingItemId,
+        _editingText
+    ) { items, editingId, editingText ->
+        ShoppingListState(
+            items = items,
+            editingItemId = editingId,
+            editingText = editingText
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ShoppingListState())
 
     fun addItem(item: String) {
         viewModelScope.launch {
-            val idOfAdded = repository.addItem(
-                ShoppingItemEntry(item = item)
-            )
+            repository.addItem(ShoppingItemEntry(item = item))
         }
     }
 
     fun onAddItem() {
         addItem("item ${Random.nextInt(1, 47)}")
+    }
+
+    fun onStartEdit(item: ShoppingItemEntry) {
+        _editingItemId.value = item.id
+        _editingText.value = item.item
+    }
+
+    fun onEditTextChange(text: String) {
+        _editingText.value = text
+    }
+
+    fun onSaveEdit() {
+        val id = _editingItemId.value ?: return
+        val text = _editingText.value.trim()
+        if (text.isNotEmpty()) {
+            viewModelScope.launch {
+                repository.updateItemName(id, text)
+            }
+        }
+        _editingItemId.value = null
+        _editingText.value = ""
+    }
+
+    fun onCancelEdit() {
+        _editingItemId.value = null
+        _editingText.value = ""
     }
 }

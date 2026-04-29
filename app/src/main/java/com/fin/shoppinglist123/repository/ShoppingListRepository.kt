@@ -10,4 +10,6 @@ interface ShoppingListRepository {
     suspend fun getById(itemId: Long): ShoppingItemEntry?
 
     suspend fun addItem(item: ShoppingItemEntry): Long
+
+    suspend fun updateItemName(itemId: Long, newName: String)
 }

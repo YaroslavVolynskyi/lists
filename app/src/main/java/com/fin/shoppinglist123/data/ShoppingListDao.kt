@@ -17,4 +17,7 @@ interface ShoppingListDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: ShoppingItemEntry): Long
+
+    @Query("UPDATE shopping_items SET item = :newName WHERE id = :itemId")
+    suspend fun updateItemName(itemId: Long, newName: String)
 }
