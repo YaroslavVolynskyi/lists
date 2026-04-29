@@ -27,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,7 +94,7 @@ fun ShoppingListScreen(
                 Card(modifier = Modifier.fillMaxWidth()) {
                     if (isEditing) {
                         val focusRequester = remember { FocusRequester() }
-                        var textFieldValue by remember {
+                        var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
                             mutableStateOf(
                                 TextFieldValue(
                                     text = uiState.editingText,
