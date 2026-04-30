@@ -102,17 +102,17 @@ fun ShoppingListScreen(
                 val isEditingTitle = uiState.currentEditedItem?.id == item.id && uiState.currentEditedItem.isTitleText
                 val isEditingDescription = uiState.currentEditedItem?.id == item.id && uiState.currentEditedItem.isDescription
                 val isExpanded = item.isExpanded
-                var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-                    mutableStateOf(
-                        TextFieldValue(
-                            text = uiState.currentEditedItem?.currentText ?: "",
-                            selection = TextRange(uiState.currentEditedItem?.currentText?.length ?: 0)
-                        )
-                    )
-                }
-                val focusRequester = remember { FocusRequester() }
                 Card(modifier = Modifier.fillMaxWidth()) {
                     if (isEditingTitle) {
+                        val titleFocusRequester = remember { FocusRequester() }
+                        var titleTextFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                            mutableStateOf(
+                                TextFieldValue(
+                                    text = uiState.currentEditedItem?.currentText ?: "",
+                                    selection = TextRange(uiState.currentEditedItem?.currentText?.length ?: 0)
+                                )
+                            )
+                        }
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -120,14 +120,14 @@ fun ShoppingListScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             TextField(
-                                value = textFieldValue,
+                                value = titleTextFieldValue,
                                 onValueChange = {
-                                    textFieldValue = it
+                                    titleTextFieldValue = it
                                     onEditTextChange(it.text, false)
                                 },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .focusRequester(focusRequester),
+                                    .focusRequester(titleFocusRequester),
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                                 keyboardActions = KeyboardActions(onDone = { onSaveEdit() })
@@ -140,7 +140,7 @@ fun ShoppingListScreen(
                             }
                         }
                         LaunchedEffect(Unit) {
-                            focusRequester.requestFocus()
+                            titleFocusRequester.requestFocus()
                         }
                     } else {
                         Column(
@@ -184,6 +184,15 @@ fun ShoppingListScreen(
                             if (isExpanded) {
                                 HorizontalDivider(modifier = Modifier.padding(end = 16.dp))
                                 if (isEditingDescription) {
+                                    val descFocusRequester = remember { FocusRequester() }
+                                    var descTextFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                                        mutableStateOf(
+                                            TextFieldValue(
+                                                text = uiState.currentEditedItem?.currentText ?: "",
+                                                selection = TextRange(uiState.currentEditedItem?.currentText?.length ?: 0)
+                                            )
+                                        )
+                                    }
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -191,14 +200,14 @@ fun ShoppingListScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         TextField(
-                                            value = textFieldValue,
+                                            value = descTextFieldValue,
                                             onValueChange = {
-                                                textFieldValue = it
+                                                descTextFieldValue = it
                                                 onEditTextChange(it.text, true)
                                             },
                                             modifier = Modifier
                                                 .weight(1f)
-                                                .focusRequester(focusRequester),
+                                                .focusRequester(descFocusRequester),
                                             singleLine = true,
                                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                                             keyboardActions = KeyboardActions(onDone = { onSaveEdit() })
@@ -211,7 +220,7 @@ fun ShoppingListScreen(
                                         }
                                     }
                                     LaunchedEffect(Unit) {
-                                        focusRequester.requestFocus()
+                                        descFocusRequester.requestFocus()
                                     }
                                 } else {
                                     Text(
