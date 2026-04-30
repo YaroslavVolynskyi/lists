@@ -20,4 +20,6 @@ interface ShoppingListRepository {
     suspend fun onCheckedChanged(itemId: Long, isChecked: Boolean)
 
     suspend fun onExpandedChanged(itemId: Long, isExpanded: Boolean)
+
+    fun getCheckedItems(): Flow<List<ShoppingItemEntry>>
 }

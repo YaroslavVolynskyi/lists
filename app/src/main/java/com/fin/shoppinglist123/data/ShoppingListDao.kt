@@ -32,4 +32,7 @@ interface ShoppingListDao {
 
     @Query("UPDATE shopping_items SET isExpanded = :isExpanded WHERE id = :itemId")
     suspend fun onExpandedChanged(itemId: Long, isExpanded: Boolean)
+
+    @Query("SELECT * FROM shopping_items WHERE isChecked = 1 ORDER BY id ASC")
+    fun observeCheckedItems(): Flow<List<ShoppingItemEntry>>
 }

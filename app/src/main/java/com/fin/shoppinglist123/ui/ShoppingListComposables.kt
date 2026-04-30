@@ -47,7 +47,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fin.shoppinglist123.data.ShoppingItemEntry
 import com.fin.shoppinglist123.ui.viewmodel.ShoppingListViewModel
@@ -55,6 +55,7 @@ import com.fin.shoppinglist123.ui.viewmodel.ShoppingListViewModel
 
 @Composable
 fun ShoppingListRoute(
+    onNavigateToCheckedItems: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ShoppingListViewModel = hiltViewModel()
 ) {
@@ -69,7 +70,8 @@ fun ShoppingListRoute(
         onCancelEdit = viewModel::onCancelEdit,
         onDelete = viewModel::onDeleteItem,
         onExpand = viewModel::onToggleExpand,
-        onCheckedChanged = viewModel::onCheckedChanged
+        onCheckedChanged = viewModel::onCheckedChanged,
+        onNavigateToCheckedItems = onNavigateToCheckedItems
     )
 }
 
@@ -84,13 +86,22 @@ fun ShoppingListScreen(
     onCancelEdit: () -> Unit,
     onDelete: (itemId: Long) -> Unit,
     onExpand: (itemId: Long, isExpanded: Boolean) -> Unit,
-    onCheckedChanged: (itemId: Long, isChecked: Boolean) -> Unit
+    onCheckedChanged: (itemId: Long, isChecked: Boolean) -> Unit,
+    onNavigateToCheckedItems: () -> Unit
 ) {
     Scaffold(
         modifier = modifier,
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddItem) {
-                Icon(Icons.Default.Add, contentDescription = "Add item")
+            Column {
+                FloatingActionButton(
+                    onClick = onNavigateToCheckedItems,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                ) {
+                    Icon(Icons.Filled.Check, contentDescription = "Checked items")
+                }
+                FloatingActionButton(onClick = onAddItem) {
+                    Icon(Icons.Default.Add, contentDescription = "Add item")
+                }
             }
         },
     ) { padding ->
