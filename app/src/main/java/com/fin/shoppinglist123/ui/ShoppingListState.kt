@@ -4,9 +4,10 @@ import com.fin.shoppinglist123.data.ShoppingItemEntry
 
 data class ShoppingListState(
     val items: List<ShoppingItemEntry> = emptyList(),
-    val editingItemId: Long? = null,
-    val editingText: String = "",
-
-    val descriptionEditingItemId: Long? = null,
-    val descriptionEditingText: String = "",
+    val currentEditedItem: EditedItem? = null
+//    val editingItemId: Long? = null,
+//    val editingText: String = "",
+//
+//    val descriptionEditingItemId: Long? = null,
+//    val descriptionEditingText: String = "",
 )

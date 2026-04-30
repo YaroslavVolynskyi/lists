@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fin.shoppinglist123.data.ShoppingItemEntry
 import com.fin.shoppinglist123.repository.ShoppingListRepository
+import com.fin.shoppinglist123.ui.EditedItem
 import com.fin.shoppinglist123.ui.ShoppingListState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,18 +23,15 @@ class ShoppingListViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
 ): ViewModel() {
 
-    private val _editingItemId = MutableStateFlow<Long?>(null)
-    private val _editingText = MutableStateFlow("")
+    private val _currentEditedItem = MutableStateFlow(EditedItem())
 
     val uiState: StateFlow<ShoppingListState> = combine(
         repository.getShoppingList(),
-        _editingItemId,
-        _editingText
-    ) { args ->
+        _currentEditedItem
+    ) { itemsList, currentEditedItem ->
         ShoppingListState(
-            items = args[0] as List<ShoppingItemEntry>,
-            editingItemId = args[1] as Long?,
-            editingText = args[2] as String,
+            items = itemsList,
+            currentEditedItem = currentEditedItem
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ShoppingListState())
 
@@ -48,29 +46,32 @@ class ShoppingListViewModel @Inject constructor(
     }
 
     fun onStartEdit(item: ShoppingItemEntry) {
-        _editingItemId.value = item.id
-        _editingText.value = item.item
+        _currentEditedItem.value = _currentEditedItem.value.copy(
+            id = item.id,
+            currentText = item.item
+        )
     }
 
+//    fun onEditTextChange(text: String, isDescription: Boolean) {
     fun onEditTextChange(text: String) {
-        _editingText.value = text
+        _currentEditedItem.value = _currentEditedItem.value.copy(
+            currentText = text,
+        )
     }
 
     fun onSaveEdit() {
-        val id = _editingItemId.value ?: return
-        val text = _editingText.value.trim()
-        if (text.isNotEmpty()) {
-            viewModelScope.launch {
-                repository.updateItemName(id, text)
+        _currentEditedItem.value.let {
+            if (it.currentText != null && it.id != null) {
+                viewModelScope.launch {
+                    repository.updateItemName(it.id, it.currentText)
+                }
             }
         }
-        _editingItemId.value = null
-        _editingText.value = ""
+        _currentEditedItem.value = EditedItem()
     }
 
     fun onCancelEdit() {
-        _editingItemId.value = null
-        _editingText.value = ""
+        _currentEditedItem.value = EditedItem()
     }
 
     fun onDeleteItem(itemId: Long) {

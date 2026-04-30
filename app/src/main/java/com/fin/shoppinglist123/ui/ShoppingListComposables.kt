@@ -99,7 +99,8 @@ fun ShoppingListScreen(
             )
         ) {
             items(uiState.items, key = { item -> item.id }) { item ->
-                val isEditing = uiState.editingItemId == item.id
+//                val isEditing = uiState.editingItemId == item.id
+                val isEditing = uiState.currentEditedItem?.id == item.id
                 val isExpanded = item.isExpanded
                 Card(modifier = Modifier.fillMaxWidth()) {
                     if (isEditing) {
@@ -107,8 +108,8 @@ fun ShoppingListScreen(
                         var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
                             mutableStateOf(
                                 TextFieldValue(
-                                    text = uiState.editingText,
-                                    selection = TextRange(uiState.editingText.length)
+                                    text = uiState.currentEditedItem?.currentText ?: "",
+                                    selection = TextRange(uiState.currentEditedItem?.currentText?.length ?: 0)
                                 )
                             )
                         }
