@@ -27,6 +27,15 @@ class ShoppingListRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateItemDescription(
+        itemId: Long,
+        newDescription: String?
+    ) {
+        newDescription?.let {
+            shoppingDatabaseDao.updateItemDescription(itemId, newDescription)
+        }
+    }
+
     override suspend fun delete(itemId: Long) {
         shoppingDatabaseDao.delete(itemId)
     }

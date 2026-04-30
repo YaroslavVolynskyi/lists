@@ -73,8 +73,8 @@ fun ShoppingListScreen(
     uiState: ShoppingListState,
     modifier: Modifier = Modifier,
     onAddItem: () -> Unit,
-    onStartEdit: (ShoppingItemEntry) -> Unit,
-    onEditTextChange: (String) -> Unit,
+    onStartEdit: (ShoppingItemEntry, isDescription: Boolean) -> Unit,
+    onEditTextChange: (String, isDescription: Boolean) -> Unit,
     onSaveEdit: () -> Unit,
     onCancelEdit: () -> Unit,
     onDelete: (itemId: Long) -> Unit,
@@ -123,7 +123,7 @@ fun ShoppingListScreen(
                                 value = textFieldValue,
                                 onValueChange = {
                                     textFieldValue = it
-                                    onEditTextChange(it.text)
+                                    onEditTextChange(it.text, false)
                                 },
                                 modifier = Modifier
                                     .weight(1f)
@@ -153,7 +153,7 @@ fun ShoppingListScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { onStartEdit(item) },
+                                    .clickable { onStartEdit(item, false) },
 //                                    .padding(4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {

@@ -45,17 +45,18 @@ class ShoppingListViewModel @Inject constructor(
         addItem("item ${Random.nextInt(1, 47)}")
     }
 
-    fun onStartEdit(item: ShoppingItemEntry) {
+    fun onStartEdit(item: ShoppingItemEntry, isDescription: Boolean) {
         _currentEditedItem.value = _currentEditedItem.value.copy(
             id = item.id,
-            currentText = item.item
+            currentText = if (isDescription) item.description else item.item
         )
     }
 
-//    fun onEditTextChange(text: String, isDescription: Boolean) {
-    fun onEditTextChange(text: String) {
+    fun onEditTextChange(text: String, isDescription: Boolean) {
         _currentEditedItem.value = _currentEditedItem.value.copy(
             currentText = text,
+            isDescription = isDescription,
+            isTitleText = !isDescription
         )
     }
 
@@ -63,7 +64,11 @@ class ShoppingListViewModel @Inject constructor(
         _currentEditedItem.value.let {
             if (it.currentText != null && it.id != null) {
                 viewModelScope.launch {
-                    repository.updateItemName(it.id, it.currentText)
+                    if (it.isDescription) {
+                        repository.updateItemDescription(it.id, it.currentText)
+                    } else if (it.isTitleText) {
+                        repository.updateItemName(it.id, it.currentText)
+                    }
                 }
             }
         }
