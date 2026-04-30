@@ -1,5 +1,7 @@
 package com.fin.shoppinglist123.ui
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,8 +38,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -154,10 +159,29 @@ fun ShoppingListScreen(
                                     .clickable { onStartEdit(item, false) },
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                val strikethroughProgress = remember { Animatable(if (item.isChecked) 1f else 0f) }
+                                LaunchedEffect(item.isChecked) {
+                                    strikethroughProgress.animateTo(
+                                        targetValue = if (item.isChecked) 1f else 0f,
+                                        animationSpec = tween(durationMillis = 300)
+                                    )
+                                }
                                 Text(
                                     text = item.item,
                                     modifier = Modifier
                                         .weight(1f)
+                                        .drawWithContent {
+                                            drawContent()
+                                            if (strikethroughProgress.value > 0f) {
+                                                val y = size.height / 2
+                                                drawLine(
+                                                    color = Color.Gray,
+                                                    start = Offset(0f, y),
+                                                    end = Offset(size.width * strikethroughProgress.value, y),
+                                                    strokeWidth = 2.dp.toPx()
+                                                )
+                                            }
+                                        }
                                 )
                                 IconButton(onClick = {
                                     onExpand.invoke(item.id, !item.isExpanded)
