@@ -1,4 +1,4 @@
-package com.fin.shoppinglist123.ui
+package com.fin.shoppinglist123.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fin.shoppinglist123.data.ShoppingItemEntry
 import com.fin.shoppinglist123.ui.viewmodel.CheckedItemsViewModel
 
 @Composable
@@ -42,7 +43,7 @@ fun CheckedItemsRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckedItemsScreen(
-    items: List<com.fin.shoppinglist123.data.ShoppingItemEntry>,
+    items: List<ShoppingItemEntry>,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {

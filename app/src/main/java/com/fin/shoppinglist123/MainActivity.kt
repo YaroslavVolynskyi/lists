@@ -8,8 +8,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
-import com.fin.shoppinglist123.ui.CheckedItemsRoute
-import com.fin.shoppinglist123.ui.ShoppingListRoute
+import com.fin.shoppinglist123.ui.screens.CheckedItemsRoute
+import com.fin.shoppinglist123.ui.screens.ShoppingListRoute
 import com.fin.shoppinglist123.ui.navigation.CheckedItemsKey
 import com.fin.shoppinglist123.ui.navigation.ShoppingListKey
 import com.fin.shoppinglist123.ui.theme.Shoppinglist123Theme
