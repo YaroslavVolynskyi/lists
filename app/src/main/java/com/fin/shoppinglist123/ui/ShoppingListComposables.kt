@@ -103,58 +103,55 @@ fun ShoppingListScreen(
                 val isEditingDescription = uiState.currentEditedItem?.id == item.id && uiState.currentEditedItem.isDescription
                 val isExpanded = item.isExpanded
                 Card(modifier = Modifier.fillMaxWidth()) {
-                    if (isEditingTitle) {
-                        val titleFocusRequester = remember { FocusRequester() }
-                        var titleTextFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-                            mutableStateOf(
-                                TextFieldValue(
-                                    text = uiState.currentEditedItem?.currentText ?: "",
-                                    selection = TextRange(uiState.currentEditedItem?.currentText?.length ?: 0)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp)
+                    ) {
+                        if (isEditingTitle) {
+                            val titleFocusRequester = remember { FocusRequester() }
+                            var titleTextFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                                mutableStateOf(
+                                    TextFieldValue(
+                                        text = uiState.currentEditedItem?.currentText ?: "",
+                                        selection = TextRange(uiState.currentEditedItem?.currentText?.length ?: 0)
+                                    )
                                 )
-                            )
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            TextField(
-                                value = titleTextFieldValue,
-                                onValueChange = {
-                                    titleTextFieldValue = it
-                                    onEditTextChange(it.text, false)
-                                },
+                            }
+                            Row(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .focusRequester(titleFocusRequester),
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                                keyboardActions = KeyboardActions(onDone = { onSaveEdit() })
-                            )
-                            IconButton(onClick = onSaveEdit) {
-                                Icon(Icons.Default.Check, contentDescription = "Save")
-                            }
-                            IconButton(onClick = onCancelEdit) {
-                                Icon(Icons.Default.Close, contentDescription = "Cancel")
-                            }
-                        }
-                        LaunchedEffect(Unit) {
-                            titleFocusRequester.requestFocus()
-                        }
-                    } else {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    start = 16.dp,
+                                    .fillMaxWidth()
+                                    .padding(4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                TextField(
+                                    value = titleTextFieldValue,
+                                    onValueChange = {
+                                        titleTextFieldValue = it
+                                        onEditTextChange(it.text, false)
+                                    },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .focusRequester(titleFocusRequester),
+                                    singleLine = true,
+                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                    keyboardActions = KeyboardActions(onDone = { onSaveEdit() })
                                 )
-                        ) {
+                                IconButton(onClick = onSaveEdit) {
+                                    Icon(Icons.Default.Check, contentDescription = "Save")
+                                }
+                                IconButton(onClick = onCancelEdit) {
+                                    Icon(Icons.Default.Close, contentDescription = "Cancel")
+                                }
+                            }
+                            LaunchedEffect(Unit) {
+                                titleFocusRequester.requestFocus()
+                            }
+                        } else {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onStartEdit(item, false) },
-//                                    .padding(4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
@@ -181,56 +178,61 @@ fun ShoppingListScreen(
                                     }
                                 )
                             }
-                            if (isExpanded) {
-                                HorizontalDivider(modifier = Modifier.padding(end = 16.dp))
-                                if (isEditingDescription) {
-                                    val descFocusRequester = remember { FocusRequester() }
-                                    var descTextFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-                                        mutableStateOf(
-                                            TextFieldValue(
-                                                text = uiState.currentEditedItem?.currentText ?: "",
-                                                selection = TextRange(uiState.currentEditedItem?.currentText?.length ?: 0)
-                                            )
+                        }
+                        if (isExpanded) {
+                            HorizontalDivider(modifier = Modifier.padding(end = 16.dp))
+                            if (isEditingDescription) {
+                                val descFocusRequester = remember { FocusRequester() }
+                                var descTextFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                                    mutableStateOf(
+                                        TextFieldValue(
+                                            text = uiState.currentEditedItem?.currentText ?: "",
+                                            selection = TextRange(uiState.currentEditedItem?.currentText?.length ?: 0)
                                         )
-                                    }
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(4.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        TextField(
-                                            value = descTextFieldValue,
-                                            onValueChange = {
-                                                descTextFieldValue = it
-                                                onEditTextChange(it.text, true)
-                                            },
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .focusRequester(descFocusRequester),
-                                            singleLine = true,
-                                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                                            keyboardActions = KeyboardActions(onDone = { onSaveEdit() })
-                                        )
-                                        IconButton(onClick = onSaveEdit) {
-                                            Icon(Icons.Default.Check, contentDescription = "Save")
-                                        }
-                                        IconButton(onClick = onCancelEdit) {
-                                            Icon(Icons.Default.Close, contentDescription = "Cancel")
-                                        }
-                                    }
-                                    LaunchedEffect(Unit) {
-                                        descFocusRequester.requestFocus()
-                                    }
-                                } else {
-                                    Text(
-                                        text = item.description ?: "hint",
-                                        modifier = Modifier.padding(
-                                            top = 16.dp,
-                                            bottom = 16.dp
-                                        ).clickable { onStartEdit(item, true) }
                                     )
                                 }
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    TextField(
+                                        value = descTextFieldValue,
+                                        onValueChange = {
+                                            descTextFieldValue = it
+                                            onEditTextChange(it.text, true)
+                                        },
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .focusRequester(descFocusRequester),
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                        keyboardActions = KeyboardActions(onDone = { onSaveEdit() })
+                                    )
+                                    IconButton(onClick = onSaveEdit) {
+                                        Icon(Icons.Default.Check, contentDescription = "Save")
+                                    }
+                                    IconButton(onClick = onCancelEdit) {
+                                        Icon(Icons.Default.Close, contentDescription = "Cancel")
+                                    }
+                                }
+                                LaunchedEffect(Unit) {
+                                    descFocusRequester.requestFocus()
+                                }
+                            } else {
+                                Text(
+                                    text = item.description ?: "hint",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            top = 16.dp,
+                                            bottom = 16.dp
+                                        )
+                                        .clickable {
+                                            onStartEdit(item, true)
+                                        }
+                                )
                             }
                         }
                     }
