@@ -57,8 +57,6 @@ class ShoppingListViewModel @Inject constructor(
     fun onEditTextChange(text: String, isDescription: Boolean) {
         _currentEditedItem.value = _currentEditedItem.value.copy(
             currentText = text,
-//            isDescription = isDescription,
-//            isTitleText = !isDescription
         )
     }
 
