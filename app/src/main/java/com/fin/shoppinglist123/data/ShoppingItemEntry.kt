@@ -9,5 +9,6 @@ data class ShoppingItemEntry(
     val item: String,
     val description: String? = null,
     val isChecked: Boolean = false,
+    val isExpanded: Boolean = false,
     val state: ShoppingItemState = ShoppingItemState.New
 )

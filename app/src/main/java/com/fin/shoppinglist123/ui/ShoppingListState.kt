@@ -6,7 +6,6 @@ data class ShoppingListState(
     val items: List<ShoppingItemEntry> = emptyList(),
     val editingItemId: Long? = null,
     val editingText: String = "",
-    val expandedItemId: Long? = null,
 
     val descriptionEditingItemId: Long? = null,
     val descriptionEditingText: String = "",

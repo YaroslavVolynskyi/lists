@@ -26,4 +26,7 @@ interface ShoppingListDao {
 
     @Query("UPDATE shopping_items SET isChecked = :isChecked WHERE id = :itemId")
     suspend fun onCheckedChanged(itemId: Long, isChecked: Boolean)
+
+    @Query("UPDATE shopping_items SET isExpanded = :isExpanded WHERE id = :itemId")
+    suspend fun onExpandedChanged(itemId: Long, isExpanded: Boolean)
 }

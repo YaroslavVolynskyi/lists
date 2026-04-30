@@ -25,19 +25,15 @@ class ShoppingListViewModel @Inject constructor(
     private val _editingItemId = MutableStateFlow<Long?>(null)
     private val _editingText = MutableStateFlow("")
 
-    private val _expandedItemId = MutableStateFlow<Long?>(null)
-
     val uiState: StateFlow<ShoppingListState> = combine(
         repository.getShoppingList(),
         _editingItemId,
-        _editingText,
-        _expandedItemId
+        _editingText
     ) { args ->
         ShoppingListState(
             items = args[0] as List<ShoppingItemEntry>,
             editingItemId = args[1] as Long?,
             editingText = args[2] as String,
-            expandedItemId = args[3] as Long?,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ShoppingListState())
 
@@ -83,8 +79,10 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
-    fun onToggleExpand(itemid: Long?) {
-        _expandedItemId.value = itemid
+    fun onToggleExpand(itemId: Long, isExpanded: Boolean) {
+        viewModelScope.launch {
+            repository.onExpandedChanged(itemId, isExpanded)
+        }
     }
 
     fun onCheckedChanged(itemId: Long, isChecked: Boolean) {

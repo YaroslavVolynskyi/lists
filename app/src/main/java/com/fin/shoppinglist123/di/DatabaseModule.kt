@@ -18,7 +18,9 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): ShoppingListDatabase =
-        Room.databaseBuilder(context, ShoppingListDatabase::class.java, "shopping_list.db").build()
+        Room.databaseBuilder(context, ShoppingListDatabase::class.java, "shopping_list.db")
+            .fallbackToDestructiveMigration(dropAllTables = true)
+            .build()
 
     @Provides
     fun provideWatchlistDao(database: ShoppingListDatabase): ShoppingListDao = database.shoppingListDao()

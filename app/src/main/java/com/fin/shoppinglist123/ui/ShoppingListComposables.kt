@@ -78,7 +78,7 @@ fun ShoppingListScreen(
     onSaveEdit: () -> Unit,
     onCancelEdit: () -> Unit,
     onDelete: (itemId: Long) -> Unit,
-    onExpand: (itemId: Long?) -> Unit,
+    onExpand: (itemId: Long, isExpanded: Boolean) -> Unit,
     onCheckedChanged: (itemId: Long, isChecked: Boolean) -> Unit
 ) {
     Scaffold(
@@ -100,7 +100,7 @@ fun ShoppingListScreen(
         ) {
             items(uiState.items, key = { item -> item.id }) { item ->
                 val isEditing = uiState.editingItemId == item.id
-                val isExpanded = uiState.expandedItemId == item.id
+                val isExpanded = item.isExpanded
                 Card(modifier = Modifier.fillMaxWidth()) {
                     if (isEditing) {
                         val focusRequester = remember { FocusRequester() }
@@ -162,9 +162,7 @@ fun ShoppingListScreen(
                                         .weight(1f)
                                 )
                                 IconButton(onClick = {
-                                    onExpand.invoke(
-                                        if (isExpanded) null else item.id
-                                    )
+                                    onExpand.invoke(item.id, !item.isExpanded)
                                 }) {
                                     Icon(
                                         imageVector = if (isExpanded) Icons.Default.ArrowCircleUp else Icons.Default.ArrowCircleDown,
@@ -187,7 +185,7 @@ fun ShoppingListScreen(
                                 Text(
                                     text = "expanded text of item ${item.id}",
                                     modifier = Modifier.padding(
-                                        top = 8.dp,
+                                        top = 16.dp,
                                         bottom = 16.dp
                                     )
                                 )

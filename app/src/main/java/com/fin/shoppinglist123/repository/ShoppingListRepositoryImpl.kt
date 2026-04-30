@@ -32,4 +32,8 @@ class ShoppingListRepositoryImpl @Inject constructor(
     override suspend fun onCheckedChanged(itemId: Long, isChecked: Boolean) {
         shoppingDatabaseDao.onCheckedChanged(itemId, isChecked)
     }
+
+    override suspend fun onExpandedChanged(itemId: Long, isExpanded: Boolean) {
+        shoppingDatabaseDao.onExpandedChanged(itemId, isExpanded)
+    }
 }
