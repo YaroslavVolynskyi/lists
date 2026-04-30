@@ -99,20 +99,20 @@ fun ShoppingListScreen(
             )
         ) {
             items(uiState.items, key = { item -> item.id }) { item ->
-//                val isEditing = uiState.editingItemId == item.id
-                val isEditing = uiState.currentEditedItem?.id == item.id
+                val isEditingTitle = uiState.currentEditedItem?.id == item.id && uiState.currentEditedItem.isTitleText
+                val isEditingDescription = uiState.currentEditedItem?.id == item.id && uiState.currentEditedItem.isDescription
                 val isExpanded = item.isExpanded
+                var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                    mutableStateOf(
+                        TextFieldValue(
+                            text = uiState.currentEditedItem?.currentText ?: "",
+                            selection = TextRange(uiState.currentEditedItem?.currentText?.length ?: 0)
+                        )
+                    )
+                }
+                val focusRequester = remember { FocusRequester() }
                 Card(modifier = Modifier.fillMaxWidth()) {
-                    if (isEditing) {
-                        val focusRequester = remember { FocusRequester() }
-                        var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-                            mutableStateOf(
-                                TextFieldValue(
-                                    text = uiState.currentEditedItem?.currentText ?: "",
-                                    selection = TextRange(uiState.currentEditedItem?.currentText?.length ?: 0)
-                                )
-                            )
-                        }
+                    if (isEditingTitle) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -183,13 +183,45 @@ fun ShoppingListScreen(
                             }
                             if (isExpanded) {
                                 HorizontalDivider(modifier = Modifier.padding(end = 16.dp))
-                                Text(
-                                    text = "expanded text of item ${item.id}",
-                                    modifier = Modifier.padding(
-                                        top = 16.dp,
-                                        bottom = 16.dp
+                                if (isEditingDescription) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(4.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        TextField(
+                                            value = textFieldValue,
+                                            onValueChange = {
+                                                textFieldValue = it
+                                                onEditTextChange(it.text, true)
+                                            },
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .focusRequester(focusRequester),
+                                            singleLine = true,
+                                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                            keyboardActions = KeyboardActions(onDone = { onSaveEdit() })
+                                        )
+                                        IconButton(onClick = onSaveEdit) {
+                                            Icon(Icons.Default.Check, contentDescription = "Save")
+                                        }
+                                        IconButton(onClick = onCancelEdit) {
+                                            Icon(Icons.Default.Close, contentDescription = "Cancel")
+                                        }
+                                    }
+                                    LaunchedEffect(Unit) {
+                                        focusRequester.requestFocus()
+                                    }
+                                } else {
+                                    Text(
+                                        text = item.description ?: "hint",
+                                        modifier = Modifier.padding(
+                                            top = 16.dp,
+                                            bottom = 16.dp
+                                        ).clickable { onStartEdit(item, true) }
                                     )
-                                )
+                                }
                             }
                         }
                     }
