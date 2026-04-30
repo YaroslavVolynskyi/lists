@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class ShoppingListRepositoryImpl @Inject constructor(
     private val shoppingDatabaseDao: ShoppingListDao
-): ShoppingListRepository {
+) : ShoppingListRepository {
 
     override fun getShoppingList(): Flow<List<ShoppingItemEntry>> {
         return shoppingDatabaseDao.observeAllItems()
@@ -22,30 +22,19 @@ class ShoppingListRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateItemName(itemId: Long, newName: String?) {
-        newName?.let {
-            shoppingDatabaseDao.updateItemName(itemId, it)
-        }
+        newName?.let { shoppingDatabaseDao.updateItemName(itemId, it) }
     }
 
-    override suspend fun updateItemDescription(
-        itemId: Long,
-        newDescription: String?
-    ) {
-        newDescription?.let {
-            shoppingDatabaseDao.updateItemDescription(itemId, newDescription)
-        }
+    override suspend fun updateItemDescription(itemId: Long, newDescription: String?) {
+        newDescription?.let { shoppingDatabaseDao.updateItemDescription(itemId, it) }
     }
 
     override suspend fun delete(itemId: Long) {
         shoppingDatabaseDao.delete(itemId)
     }
 
-    override suspend fun onCheckedChanged(itemId: Long, isChecked: Boolean) {
-        shoppingDatabaseDao.onCheckedChanged(itemId, isChecked)
-    }
-
-    override suspend fun onExpandedChanged(itemId: Long, isExpanded: Boolean) {
-        shoppingDatabaseDao.onExpandedChanged(itemId, isExpanded)
+    override suspend fun updateChecked(itemId: Long, isChecked: Boolean) {
+        shoppingDatabaseDao.updateChecked(itemId, isChecked)
     }
 
     override fun getCheckedItems(): Flow<List<ShoppingItemEntry>> {

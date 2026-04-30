@@ -28,10 +28,7 @@ interface ShoppingListDao {
     suspend fun delete(itemId: Long)
 
     @Query("UPDATE shopping_items SET isChecked = :isChecked WHERE id = :itemId")
-    suspend fun onCheckedChanged(itemId: Long, isChecked: Boolean)
-
-    @Query("UPDATE shopping_items SET isExpanded = :isExpanded WHERE id = :itemId")
-    suspend fun onExpandedChanged(itemId: Long, isExpanded: Boolean)
+    suspend fun updateChecked(itemId: Long, isChecked: Boolean)
 
     @Query("SELECT * FROM shopping_items WHERE isChecked = 1 ORDER BY id ASC")
     fun observeCheckedItems(): Flow<List<ShoppingItemEntry>>

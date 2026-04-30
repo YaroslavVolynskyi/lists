@@ -1,12 +1,11 @@
 package com.fin.shoppinglist123.ui.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fin.shoppinglist123.data.ShoppingItemEntry
 import com.fin.shoppinglist123.repository.ShoppingListRepository
 import com.fin.shoppinglist123.ui.EditedItem
-import com.fin.shoppinglist123.ui.ShoppingListState
+import com.fin.shoppinglist123.ui.ShoppingListUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,38 +14,35 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.random.Random
 
 @HiltViewModel
 class ShoppingListViewModel @Inject constructor(
     private val repository: ShoppingListRepository,
-    private val savedStateHandle: SavedStateHandle,
-): ViewModel() {
+) : ViewModel() {
 
     private val _currentEditedItem = MutableStateFlow(EditedItem())
+    private val _expandedItemIds = MutableStateFlow<Set<Long>>(emptySet())
 
-    val uiState: StateFlow<ShoppingListState> = combine(
+    val uiState: StateFlow<ShoppingListUiState> = combine(
         repository.getShoppingList(),
-        _currentEditedItem
-    ) { itemsList, currentEditedItem ->
-        ShoppingListState(
+        _currentEditedItem,
+        _expandedItemIds
+    ) { itemsList, currentEditedItem, expandedIds ->
+        ShoppingListUiState(
             items = itemsList,
+            expandedItemIds = expandedIds,
             currentEditedItem = currentEditedItem
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ShoppingListState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ShoppingListUiState())
 
-    fun addItem(item: String) {
+    fun onAddItem(name: String) {
         viewModelScope.launch {
-            repository.addItem(ShoppingItemEntry(item = item))
+            repository.addItem(ShoppingItemEntry(item = name))
         }
     }
 
-    fun onAddItem() {
-        addItem("item ${Random.nextInt(1, 47)}")
-    }
-
     fun onStartEdit(item: ShoppingItemEntry, isDescription: Boolean) {
-        _currentEditedItem.value = _currentEditedItem.value.copy(
+        _currentEditedItem.value = EditedItem(
             id = item.id,
             currentText = if (isDescription) item.description else item.item,
             isDescription = isDescription,
@@ -54,22 +50,19 @@ class ShoppingListViewModel @Inject constructor(
         )
     }
 
-    fun onEditTextChange(text: String, isDescription: Boolean) {
-        _currentEditedItem.value = _currentEditedItem.value.copy(
-            currentText = text,
-        )
+    fun onEditTextChange(text: String) {
+        _currentEditedItem.value = _currentEditedItem.value.copy(currentText = text)
     }
 
     fun onSaveEdit() {
-        _currentEditedItem.value.let {
-            if (it.currentText != null && it.id != null) {
-                viewModelScope.launch {
-                    if (it.isDescription) {
-                        repository.updateItemDescription(it.id, it.currentText)
-                    } else if (it.isTitleText) {
-                        repository.updateItemName(it.id, it.currentText)
-                    }
-                }
+        val edited = _currentEditedItem.value
+        val id = edited.id ?: return
+        val text = edited.currentText ?: return
+        viewModelScope.launch {
+            if (edited.isDescription) {
+                repository.updateItemDescription(id, text)
+            } else if (edited.isTitleText) {
+                repository.updateItemName(id, text)
             }
         }
         _currentEditedItem.value = EditedItem()
@@ -85,15 +78,15 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
-    fun onToggleExpand(itemId: Long, isExpanded: Boolean) {
-        viewModelScope.launch {
-            repository.onExpandedChanged(itemId, isExpanded)
+    fun onToggleExpand(itemId: Long) {
+        _expandedItemIds.value = _expandedItemIds.value.let { ids ->
+            if (itemId in ids) ids - itemId else ids + itemId
         }
     }
 
     fun onCheckedChanged(itemId: Long, isChecked: Boolean) {
         viewModelScope.launch {
-            repository.onCheckedChanged(itemId, isChecked)
+            repository.updateChecked(itemId, isChecked)
         }
     }
 }
