@@ -22,23 +22,24 @@ class ShoppingListViewModel @Inject constructor(
 
     private val _currentEditedItem = MutableStateFlow(EditedItem())
     private val _expandedItemIds = MutableStateFlow<Set<Long>>(emptySet())
+    private val _errorMessage = MutableStateFlow<String?>(null)
 
     val uiState: StateFlow<ShoppingListUiState> = combine(
         repository.getShoppingList(),
         _currentEditedItem,
-        _expandedItemIds
-    ) { itemsList, currentEditedItem, expandedIds ->
+        _expandedItemIds,
+        _errorMessage
+    ) { itemsList, currentEditedItem, expandedIds, error ->
         ShoppingListUiState(
             items = itemsList,
             expandedItemIds = expandedIds,
-            currentEditedItem = currentEditedItem
+            currentEditedItem = currentEditedItem,
+            errorMessage = error
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ShoppingListUiState())
 
     fun onAddItem(name: String) {
-        viewModelScope.launch {
-            repository.addItem(ShoppingItemEntry(item = name))
-        }
+        launchWithErrorHandling { repository.addItem(ShoppingItemEntry(item = name)) }
     }
 
     fun onStartEdit(item: ShoppingItemEntry, isDescription: Boolean) {
@@ -58,7 +59,7 @@ class ShoppingListViewModel @Inject constructor(
         val edited = _currentEditedItem.value
         val id = edited.id ?: return
         val text = edited.currentText ?: return
-        viewModelScope.launch {
+        launchWithErrorHandling {
             if (edited.isDescription) {
                 repository.updateItemDescription(id, text)
             } else if (edited.isTitleText) {
@@ -73,9 +74,7 @@ class ShoppingListViewModel @Inject constructor(
     }
 
     fun onDeleteItem(itemId: Long) {
-        viewModelScope.launch {
-            repository.delete(itemId)
-        }
+        launchWithErrorHandling { repository.delete(itemId) }
     }
 
     fun onToggleExpand(itemId: Long) {
@@ -85,8 +84,20 @@ class ShoppingListViewModel @Inject constructor(
     }
 
     fun onCheckedChanged(itemId: Long, isChecked: Boolean) {
+        launchWithErrorHandling { repository.updateChecked(itemId, isChecked) }
+    }
+
+    fun onErrorDismissed() {
+        _errorMessage.value = null
+    }
+
+    private fun launchWithErrorHandling(block: suspend () -> Unit) {
         viewModelScope.launch {
-            repository.updateChecked(itemId, isChecked)
+            try {
+                block()
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "An unexpected error occurred"
+            }
         }
     }
 }

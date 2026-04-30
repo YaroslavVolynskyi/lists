@@ -14,14 +14,19 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fin.shoppinglist123.data.ShoppingItemEntry
 import com.fin.shoppinglist123.ui.ShoppingListUiState
 import com.fin.shoppinglist123.ui.viewmodel.ShoppingListViewModel
 
@@ -43,7 +48,8 @@ fun ShoppingListRoute(
         onDelete = viewModel::onDeleteItem,
         onToggleExpand = viewModel::onToggleExpand,
         onCheckedChanged = viewModel::onCheckedChanged,
-        onNavigateToCheckedItems = onNavigateToCheckedItems
+        onNavigateToCheckedItems = onNavigateToCheckedItems,
+        onErrorDismissed = viewModel::onErrorDismissed
     )
 }
 
@@ -53,20 +59,31 @@ fun ShoppingListScreen(
     uiState: ShoppingListUiState,
     modifier: Modifier = Modifier,
     onAddItem: (String) -> Unit,
-    onStartEdit: (com.fin.shoppinglist123.data.ShoppingItemEntry, Boolean) -> Unit,
+    onStartEdit: (ShoppingItemEntry, Boolean) -> Unit,
     onEditTextChange: (String) -> Unit,
     onSaveEdit: () -> Unit,
     onCancelEdit: () -> Unit,
     onDelete: (Long) -> Unit,
     onToggleExpand: (Long) -> Unit,
     onCheckedChanged: (Long, Boolean) -> Unit,
-    onNavigateToCheckedItems: () -> Unit
+    onNavigateToCheckedItems: () -> Unit,
+    onErrorDismissed: () -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            onErrorDismissed()
+        }
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(title = { Text("Shopping list") })
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             Column {
                 FloatingActionButton(
